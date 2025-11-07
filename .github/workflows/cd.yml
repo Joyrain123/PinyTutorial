@@ -1,10 +1,10 @@
-name: CI
+name: CD
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  CI:
+  CD:
     permissions:
       contents: read
       pull-requests: write
@@ -41,33 +41,6 @@ jobs:
       - name: Cmake
         run: cmake -B build -G Ninja
 
-      - name: clang-format
-        id: clang-format 
-        shell: bash {0}
-        run: |
-          FILES=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }}...HEAD -- '*.cpp' '*.hpp' '*.c' '*.h' | grep -v "sdkconfig.h" | grep -v "/hal/" | grep -v -E "(^|/)Lib/" | grep -v -E "(^|/)CMSIS5/")
-          if [ -z "$FILES" ]; then
-            echo "No files to check"
-            exit 0
-          fi
-          clang-format --dry-run --Werror --style=file $FILES
+      - name: Ninja build
+        run: ninja -C build
 
-      - name: Add PR comment
-        if: (failure() && (steps.clang-format.outcome == 'failure' && github.event_name == 'pull_request'))
-        uses: mshick/add-pr-comment@v2
-        with:
-          message: |
-            ## ⚠️ 代码风格检查失败
-
-            ### Clang-Format 问题
-            请运行 `clang-format -i <file>` 修复格式问题。
-
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          refresh-message-position: true
-
-      - name: Ctest
-        run: |
-            cd test
-            cmake -B build -G Ninja
-            ninja -C build
-            ctest --test-dir build
