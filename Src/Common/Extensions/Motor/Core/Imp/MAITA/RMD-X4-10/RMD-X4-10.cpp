@@ -1,12 +1,12 @@
-#include "./RMD-X4-36.hpp"
+#include "./RMD-X4-10.hpp"
 #include "StmLog.hpp"
 
 using namespace PINYMOTOR;
 using namespace MTMOTOR;
 
-static constexpr char TAG[] = "RMDX436";
+static constexpr char TAG[] = "RMDX410";
 
-RMDX436::RMDX436(const char _name[16], InitConfig_s _config, WorkMode_e _workMode) : MTMotor(_name, _config, _workMode)
+RMDX410::RMDX410(const char _name[16], InitConfig_s _config, WorkMode_e _workMode) : MTMotor(_name, _config, _workMode)
 {
     LOG::CHECK([this]() { return checkBaseConfig(); });
 
@@ -31,7 +31,7 @@ RMDX436::RMDX436(const char _name[16], InitConfig_s _config, WorkMode_e _workMod
               regInfo_.model.txBaseId);
 }
 
-MotorTypeDef_e RMDX436::checkBaseConfig()
+MotorTypeDef_e RMDX410::checkBaseConfig()
 {
     MotorTypeDef_e rslt = 0;
 
