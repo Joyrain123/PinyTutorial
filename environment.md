@@ -136,20 +136,37 @@ int main() {
 
 **.clangd**(让 clangd 认识 GCC,否则会误报找不到头文件)
 
+在配置前先确认使用的系统，然后把下面的内容复制到.clangd文件
+
+- Windows:
+```yaml
+CompileFlags:
+  Compiler: "C:/ProgramData/mingw64/mingw64/bin/g++*"
+  # 用 WinLibs 装的 mingw把上面Compiler后面双引号里的路径改成 C:/mingw64/bin/g++
+  Add: 
+    - -std=c++17
+    - --target=x86_64-w64-mingw32
+```
+
+- Linux
 ```yaml
 CompileFlags:
   QueryDriver:
     - /usr/bin/gcc*
     - /usr/bin/g++
-    # Windows: choco 装的 mingw
-    - C:/ProgramData/mingw64/mingw64/bin/gcc*
-    - C:/ProgramData/mingw64/mingw64/bin/g++
-    - C:/ProgramData/chocolatey/bin/gcc*
-    - C:/ProgramData/chocolatey/bin/g++
-    # Windows: 用 WinLibs 装的 mingw
-    - C:/mingw64/bin/gcc*
-    - C:/mingw64/bin/g++
 ```
+
+如果以上配置在电脑上报错，那直接在vscode上方：显示并运行命令 -> 首选项：打开用户设置(JSON)
+把这串复制进去：
+```json
+"clangd.arguments": [
+  // Windows
+  "--query-driver=C:/ProgramData/mingw64/mingw64/bin/gcc*,C:/ProgramData/mingw64/mingw64/bin/g++.exe,C:/mingw64/bin/gcc*,C:/mingw64/bin/g++.exe"
+  // Linux
+  "--query-driver=/usr/bin/g++,/usr/bin/gcc*"
+]
+```
+
 
 ## 4. 构建、编译、运行(记住这 3 条)
 
@@ -158,11 +175,11 @@ CompileFlags:
 ```bash
 cmake -B build -G Ninja   # 1. 配置:生成 build/ 目录(第一次需要)
 ninja -C build            # 2. 编译:调用 gcc,产物在 build/
-./build/demo              # 3. 运行(Linux)
-# build\demo.exe          # 3. 运行(Windows)
+build\demo.exe            # 3. 运行(Windows)
+#./build/demo             # 3. 运行(Linux)
 ```
 
-- `-B build` 指定构建目录叫 `build`,`-G Ninja` 指定用 Ninja 生成构建文件。
+- `-B build` 指定构建目录叫 `build`, `-G Ninja` 指定用 Ninja 生成构建文件。
 - 以后只改代码,一条 `ninja -C build` 就够了(改了 CMakeLists.txt 它也会自动重新配置,不用再敲第一条)。
 - 这就是养成工程化习惯的意义:项目再大、文件再多,构建流程始终是这两条命令。
 
