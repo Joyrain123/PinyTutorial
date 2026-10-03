@@ -20,7 +20,3 @@ ThirdParty/
 
 # Python cache
 __pycache__/
-
-# Extensions
-Src/Common/Extensions/Motor
-Src/Common/Extensions/RemoteControl
