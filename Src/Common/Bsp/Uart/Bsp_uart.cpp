@@ -1,4 +1,5 @@
 #include "Bsp_uart.hpp"
+#include HAL_INCLUDE
 #include <vector>
 #include <cstdint>
 
@@ -54,6 +55,7 @@ void Uart::unregisterTxCallback()
 
 HAL_StatusTypeDef Uart::recvDmaMultiBufInit(uint32_t *_dstAddress, uint32_t _dataLength)
 {
+#if defined(TARGET_STM32F407IGHX) && TARGET_STM32F407IGHX
     HAL_StatusTypeDef result = HAL_OK;
     huart_->ReceptionType = HAL_UART_RECEPTION_TOIDLE;
     huart_->RxEventType = HAL_UART_RXEVENT_IDLE;
@@ -65,6 +67,11 @@ HAL_StatusTypeDef Uart::recvDmaMultiBufInit(uint32_t *_dstAddress, uint32_t _dat
                                         (uint32_t)secondMemAddress, _dataLength);
 
     return result;
+#else
+    (void)_dstAddress;
+    (void)_dataLength;
+    return HAL_ERROR;
+#endif
 }
 
 HAL_StatusTypeDef Uart::recvDmaInit(uint8_t *_dstAddress, uint32_t _dataLength)

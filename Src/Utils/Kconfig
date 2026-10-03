@@ -1,16 +1,4 @@
 menu "utils config"
-    config USE_MATHEMATICA
-        bool "mathematica"
-        default y
-    
-    source "Src/Utils/Mathematica/Kconfig"
-
-    config USE_DWT
-        bool "Dwt timer"
-        default y
-    config USE_FSM
-        bool "Finite State Machine"
-        default y
     config USE_HARDFAULT 
         bool "segger hardfault handle"
         default y
@@ -20,9 +8,6 @@ menu "utils config"
         
     source "Src/Utils/Log/Kconfig"
 
-    config USE_LAZY
-        bool "lazy init"
-        default y
     config USE_SINGLETON
         bool "singleton class base"
         default y

@@ -5,9 +5,10 @@
 #endif
 
 #include "Cmd.hpp"
-#include "Test/TestModule.hpp"
 #include "Bsp.hpp"
-#include "Lazy.hpp"
+#include "StmLog.hpp"
+#include "App.hpp"
+#include <memory>
 
 #if EXTENSION_BUZZER
 #include "Buzzer.hpp"
@@ -23,14 +24,9 @@
 
 //---------------------------------------------------------------------------------------------------
 
-#if APP_USE_INS
-#include "INS.hpp"
-Lazy<INS_SYS::INS> ins;
-#endif
+static std::unique_ptr<Cmd> cmd;
 
 //---------------------------------------------------------------------------------------------------
-
-Lazy<Cmd> cmd;
 
 //---------------------------------------------------------------------------------------------------
 
@@ -47,49 +43,20 @@ void AppManager::initApp()
     BUZZER::buzz->playNote(BUZZER::PinyCore);
 #endif
 
-#if APP_USE_COMM
-    schedule([]() { CommManager::instance().rxTask(); });
-#endif
+    cmd = std::make_unique<Cmd>();
 
-#if APP_USE_INS
-    ins.init(&IMU_SPI);
-#endif
-
-    cmd.init();
-
-#if APP_USE_UI
-    UI::APP::instance().init();
-    schedule([]() { UI::APP::instance().task(); });
-#endif
 #if APP_USE_DAEMONS
     Daemons::instance().init();
     schedule([]() { Daemons::instance().update(); });
 #endif
 
-#if APP_USE_TEST
-    TestModule::instance().init();
-#endif
-
-#if APP_USE_COMM
-    schedule([]() { CommManager::instance().txTask(); });
-#endif
-
-#if EXTENSION_LED
-    // add custom's leds
-#endif
-
-    // Generate threads at the end
+    App::instance().init();
+    schedule([]() { App::instance().task(); });
     this->createApp();
 }
 
-
 void AppManager::createApp()
 {
-#if APP_USE_TEST
-    // Test-Module Continuous Task
-    TestModule::instance();
-#endif
-
     uint32_t freeHeap = xPortGetFreeHeapSize();
     LOG::info("App", "init complete, Free Heap: %u", freeHeap);
 }

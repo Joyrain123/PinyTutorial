@@ -3,8 +3,10 @@
 #define HAL_INCLUDE <stm32f1xx_hal.h>
 
 /*can*/
+#define SOC_CAN
 #define SOC_CAN_NUM (1)
-#define HCAN1       hcan
+#define HCAN1       hcan1
+#define HCAN2       hcan2
 #define canHandle   CAN_HandleTypeDef
 #define canHeader   CAN_RxHeaderTypeDef
 #define RX_FIFO0    CAN_RX_FIFO0

@@ -11,13 +11,6 @@ add_library(freertos_config INTERFACE)
 target_include_directories(freertos_config INTERFACE
   "${CMAKE_SOURCE_DIR}/Src/Config")
 
-target_sources(freertos_config INTERFACE
-  "${THIRD_PARTY_DIR}/systemview/Sample/FreeRTOSV11/SEGGER_SYSVIEW_FreeRTOS.c"
-  "${THIRD_PARTY_DIR}/systemview/Sample/FreeRTOSV11/Config/Cortex-M/SEGGER_SYSVIEW_Config_FreeRTOS.c")
-
-target_include_directories(freertos_config INTERFACE
-  "${THIRD_PARTY_DIR}/systemview/Sample/FreeRTOSV11")
-
 target_link_libraries(freertos_config INTERFACE segger)
 
 target_compile_definitions(freertos_config INTERFACE projCOVERAGE_TEST=0)
@@ -30,9 +23,6 @@ set(FREERTOS_HEAP
 if(DEFINED TARGET_STM32F103C8TX)
     set(FREERTOS_PORT_NAME "GCC_ARM_CM3")
 elseif(DEFINED TARGET_STM32F407IGHX)
-    set(FREERTOS_PORT_NAME "GCC_ARM_CM4F")
-elseif(DEFINED TARGET_STM32H723VGTX)
-    # Keep the existing project convention for STM32H723.
     set(FREERTOS_PORT_NAME "GCC_ARM_CM4F")
 else()
     message(WARNING "Unknown STM32 target, using default FreeRTOS port: GCC_ARM_CM4F")

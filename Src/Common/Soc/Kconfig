@@ -1,28 +1,25 @@
 menu "Soc config"
     choice
         prompt "Soc target choice"
-        default TARGET_STM32F407IGHX
-
-        config TARGET_STM32F407IGHX
-        bool "STM32F407IGHX"
-
-        source "Src/Common/Soc/stm32f407ighx/Kconfig"
+        default TARGET_STM32F103C8TX
 
         config TARGET_STM32F103C8TX
         bool "STM32F103C8TX"
-
         source "Src/Common/Soc/stm32f103c8tx/Kconfig"
 
-        config TARGET_STM32H723VGTX
-        bool "STM32H723VGTX"
-
-        source "Src/Common/Soc/stm32h723vgtx/Kconfig"
+        config TARGET_STM32F407IGHX
+        bool "STM32F407IGHX"
+        source "Src/Common/Soc/stm32f407ighx/Kconfig"
 
     endchoice
+
+    config HAL_INCLUDEaa
+        string
+        default '"Src/Common/Soc/stm32f103c8tx/hal/Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h"' if TARGET_STM32F103C8TX
+        default '"Src/Common/Soc/stm32f407ighx/hal/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h"' if TARGET_STM32F407IGHX
 
     config SOC_USE_CUSTOM
     bool "custom soc"
     default n
 
 endmenu
-

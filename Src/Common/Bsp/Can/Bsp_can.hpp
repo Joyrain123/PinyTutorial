@@ -1,10 +1,14 @@
 #pragma once
 
+#include "sdkconfig.h"
 #include "Soc.hpp"
 #include <functional>
 #include <array>
 #include "Singleton.hpp"
 #include HAL_INCLUDE
+#if defined(TARGET_STM32F103C8TX) && TARGET_STM32F103C8TX
+#include "HAL_Driver_F1/Inc/stm32f1xx_hal_can.h"
+#endif
 
 class Can : public Singleton<Can> {
 private:

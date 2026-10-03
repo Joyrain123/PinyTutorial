@@ -11,18 +11,10 @@
 #endif
 
 #include "DT7.hpp"
-#include "ET08A.hpp"
-#include "VT13.hpp"
 
 // Explicit template instantiation
 #if EXTENSION_DT7
 template class RcMsgHandler<RCDevType_e::DT7>;
-#endif
-#if EXTENSION_ET08A
-template class RcMsgHandler<RCDevType_e::ET08A>;
-#endif
-#if EXTENSION_VT13
-template class RcMsgHandler<RCDevType_e::VT13>;
 #endif
 
 #if APP_USE_DAEMONS
@@ -36,26 +28,50 @@ template class RcMsgHandler<RCDevType_e::VT13>;
 
 #include "magic_enum/magic_enum.hpp"
 
-template <RCDevType_e DEV_TYPE>
-RcMsgHandler<DEV_TYPE>::RcMsgHandler(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event)
+RcMsgHandler::RcMsgHandler(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event)
 {
     createRcDev(_huart, _event);
 };
 
-template <RCDevType_e DEV_TYPE>
-void RcMsgHandler<DEV_TYPE>::createRcDev(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event)
+void RcMsgHandler::createRcDev(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event)
 {
-    if constexpr (DEV_TYPE == RCDevType_e::DT7) {
-        rc_ = std::make_unique<DT7>(_huart, _event, this->bit_);
-    } else if constexpr (DEV_TYPE == RCDevType_e::ET08A) {
-        rc_ = std::make_unique<ET08A>(_huart, _event, this->bit_);
-    } else if constexpr (DEV_TYPE == RCDevType_e::VT13) {
-        rc_ = std::make_unique<VT13>(_huart, _event, this->bit_);
-    }
+    rc_ = std::make_unique<DT7>(_huart, _event, this->bit_);
     scheduleDaemon();
 }
 
-template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::scheduleDaemon()
+void RcMsgHandler::init(MsgBus_s *_bus, EventGroupHandle_t _event)
+{
+    msgBus_ = _bus;
+    this->event = _event;
+}
+
+void RcMsgHandler::handle()
+{
+    rc_->parse();
+    masterHandle();
+}
+
+/**
+ * @brief Master handler for processing remote controller messages
+ * 
+ * @details Since remote controllers vary widely in channel configurations and button mappings
+ *          a universal processing method cannot be implemented. Users should acquire data from 
+ *          their specific remote controller, normalize it as needed, and implement custom
+ *          interaction logic based on the application requirements.
+ */
+void RcMsgHandler::masterHandle()
+{
+    // User-defined processing logic goes here ↓
+    DT7::RcData_s *rcData = static_cast<DT7::RcData_s *>(rc_->getData());
+    (void)rcData;
+}
+
+void RcMsgHandler::notify(Msg *_msg, QueueHandle_t _queue)
+{
+    xQueueSend(_queue, _msg, 0);
+}
+
+void RcMsgHandler::scheduleDaemon()
 {
 #if APP_USE_DAEMONS
     Daemons::instance().schedule([this]() {
@@ -68,46 +84,4 @@ template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::scheduleDaemon()
         }
     });
 #endif
-}
-
-template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::init(MsgBus_s *_bus, EventGroupHandle_t _event)
-{
-    msgBus_ = _bus;
-    this->event = _event;
-}
-
-template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::handle()
-{
-    rc_->parse();
-
-    masterHandle();
-}
-
-/**
- * @brief Master handler for processing remote controller messages
- * 
- * @details Since remote controllers vary widely in channel configurations and button mappings
- *          a universal processing method cannot be implemented. Users should acquire data from 
- *          their specific remote controller, normalize it as needed, and implement custom
- *          interaction logic based on the application requirements.
- */
-template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::masterHandle()
-{
-    // User-defined processing logic goes here ↓
-    if constexpr (DEV_TYPE == RCDevType_e::DT7) {
-        DT7::RcData_s *rcData = static_cast<DT7::RcData_s *>(rc_->getData());
-        (void)rcData;
-    } else if constexpr (DEV_TYPE == RCDevType_e::ET08A) {
-        ET08A::RcData_s *rcData = static_cast<ET08A::RcData_s *>(rc_->getData());
-        (void)rcData;
-    } else if constexpr (DEV_TYPE == RCDevType_e::VT13) {
-        VT13::RcData_s *rcData = static_cast<VT13::RcData_s *>(rc_->getData());
-        (void)rcData;
-    }
-    // User-defined processing logic goes here ↑
-}
-
-template <RCDevType_e DEV_TYPE> void RcMsgHandler<DEV_TYPE>::notify(Msg *_msg, QueueHandle_t _queue)
-{
-    xQueueSend(_queue, _msg, 0);
 }

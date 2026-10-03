@@ -36,6 +36,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+  extern CRC_HandleTypeDef hcrc;
 
 /* USER CODE END ET */
 

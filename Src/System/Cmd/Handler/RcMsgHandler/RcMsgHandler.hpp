@@ -7,12 +7,10 @@
 #define IS_KEY_PRESS(CODE, KEY) (((CODE) & (KEY)) == (KEY))
 
 enum class RCDevType_e : uint8_t {
-    DT7 = 0,
-    ET08A = 1,
-    VT13 = 2,
+    DT7 = 0
 };
 
-template <RCDevType_e DEV_TYPE> class RcMsgHandler final : public Handler {
+class RcMsgHandler final : public Handler {
 public:
     RcMsgHandler(UART_HandleTypeDef *_huart, EventGroupHandle_t &_event);
     void init(MsgBus_s *_bus, EventGroupHandle_t _event) final;

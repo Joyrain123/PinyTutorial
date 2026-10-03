@@ -31,10 +31,18 @@ def main():
             else:
                 shutil.copy2(s, d)
 
-    copy_dir(os.path.join(".", "CMSIS_Device", "Include"), stm32f1xx_dir)
+    cmsis_device_source = "CMSIS_Device_F1"
+    if not os.path.exists(cmsis_device_source):
+        cmsis_device_source = "CMSIS_Device"
+
+    hal_driver_source = "HAL_Driver_F1"
+    if not os.path.exists(hal_driver_source):
+        hal_driver_source = "HAL_Driver"
+
+    copy_dir(os.path.join(cmsis_device_source, "Include"), stm32f1xx_dir)
 
     copy_dir(
-        os.path.join(".", "HAL_Driver"),
+        os.path.join(".", hal_driver_source),
         os.path.join("hal", "Drivers", "STM32F1xx_HAL_Driver"),
     )
 

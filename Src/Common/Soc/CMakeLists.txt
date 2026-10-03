@@ -2,12 +2,7 @@ INCLUDE(../../Config/sdkconfig.cmake option)
 
 add_library(Soc INTERFACE)
 
-if(DEFINED TARGET_STM32H723VGTX)
-    set(soc_target "stm32h723vgtx")
-    set(cortex "cortex-m7" )
-    set(fpu "fpv5-d16" )
-    set(float-abi "hard" )
-elseif(DEFINED TARGET_STM32F407IGHX)
+if(DEFINED TARGET_STM32F407IGHX)
     set(soc_target "stm32f407ighx")
     set(cortex "cortex-m4" )
     set(fpu "fpv4-sp-d16" )
@@ -29,10 +24,6 @@ message(STATUS "soc board: ${soc_target}")
 
 set(soc_folder "${CMAKE_CURRENT_SOURCE_DIR}/${soc_target}" PARENT_SCOPE)
 set(target_folder "${CMAKE_CURRENT_SOURCE_DIR}/${soc_target}")
-
-if(DEFINED TARGET_STM32H723VGTX)
-  target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${target_folder}/SocCustom.cpp)
-endif()
 
 set(TARGET_FLAGS "-mcpu=${cortex}")
 if(NOT "${fpu}" STREQUAL "")
@@ -99,29 +90,6 @@ elseif(DEFINED TARGET_STM32F103C8TX)
       GIT_PROGRESS TRUE
       SOURCE_DIR "${target_folder}/HAL_Driver")
     FetchContent_MakeAvailable(hal_f1)
-  endif()
-
-elseif(DEFINED TARGET_STM32H723VGTX)
-  if(NOT EXISTS "${target_folder}/CMSIS_Device")
-    FetchContent_Declare(
-      cmsis_device_h7
-      GIT_REPOSITORY https://github.com/STMicroelectronics/cmsis-device-h7.git
-      GIT_TAG v1.10.7
-      GIT_SHALLOW TRUE
-      GIT_PROGRESS TRUE
-      SOURCE_DIR "${target_folder}/CMSIS_Device")
-    FetchContent_MakeAvailable(cmsis_device_h7)
-  endif()
-
-  if(NOT EXISTS "${target_folder}/HAL_Driver")
-    FetchContent_Declare(
-      hal_h7
-      GIT_REPOSITORY https://github.com/STMicroelectronics/stm32h7xx-hal-driver.git
-      GIT_TAG v1.11.6
-      GIT_SHALLOW TRUE
-      GIT_PROGRESS TRUE
-      SOURCE_DIR "${target_folder}/HAL_Driver")
-    FetchContent_MakeAvailable(hal_h7)
   endif()
 endif()
 

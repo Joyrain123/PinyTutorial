@@ -11,6 +11,7 @@ else()
 endif()
 
 set(PYTHON_SCRIPT "${CMAKE_SOURCE_DIR}/tools/script/Kconfig2h.py")
+set(ENSURE_CONFIG_SCRIPT "${CMAKE_SOURCE_DIR}/tools/Kconfig/EnsureConfig.cmake")
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.config_editing")
     set(EDIT_CONFIG TRUE)
@@ -26,6 +27,11 @@ add_custom_target(clean_all
 )
 
 add_custom_target(menuconfig
+  COMMAND ${CMAKE_COMMAND}
+          -DKCONFIG_ALLDEFCONFIG=${KCONFIG_ALLDEFCONFIG}
+          -DKCONFIG_FILE=${CMAKE_SOURCE_DIR}/Kconfig
+          -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+          -P ${ENSURE_CONFIG_SCRIPT}
   COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/.config" "${CMAKE_SOURCE_DIR}/.config_editing"
   COMMAND ${KCONFIG_MCONF} "${CMAKE_SOURCE_DIR}/Kconfig"
   COMMAND ${Python_EXECUTABLE} ${PYTHON_SCRIPT}

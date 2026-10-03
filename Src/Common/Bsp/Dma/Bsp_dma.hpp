@@ -12,11 +12,6 @@ public:
     void *ram_alloc(size_t size);
 
     /**
-     * @brief dma ram alloc 
-     */
-    void *ram_alloc(size_t size, DmaRam_e _ram);
-
-    /**
      * @brief dma ram free 
      */
     void ram_free(void *_ptr);

@@ -1,4 +1,4 @@
-# PinyCore
+# PinyTutorial
 <p align="center">
     <a href="http://commitizen.github.io/cz-cli/"><img
             src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg"
@@ -8,16 +8,10 @@
             alt="semantic-release: angular"/></a>
 </p>
 
-目前本仓库不会实现任何具体兵种，只会提供一个基础框架, 只有通用的代码需要pr到本仓库, 当app层模块稳定实现且兼容所有代码或特定时期（如完整形态考核等）才需要pr到本仓库，其他需要自己实现的地方：
+# 🏆 Inrtoduction
+本项目为电控新生培训框架，建立在电控通用框架的基础之上，主要面向stm32f103c8t6、stm32f407ighx（C板）单片机简单功能实现、外设、电机PID调试、FreeRTOS等基础模块培训内容，不具备直接上车运行能力。
 
-1. app层
-2. cmd输入的逻辑配置
-
-****
-
-👉 [Click here to view details](./.docs/profile.md)
-
-# 🎯Requirements
+# 🎯 Requirement
 
 1. cmake >= 3.24
 2. ninja >= 1.1
@@ -31,8 +25,10 @@ we also suggest to install following software:
 2. [commitizen](https://github.com/commitizen/cz-cli)
 3. ccache
 
-# 🌟Getting started
-## 🏗️Build
+# 🌟 Getting started
+## 🏗️ Build
+
+对于 stm32f103c8t6 单片机的自定义外设配置，需要自行从 cubemx 配置后，导入至 Src/Common/Soc/stm32f103c8tx/hal（替换成自己的绝对路径）
 
 **构建**
 
@@ -60,7 +56,7 @@ cmake --build ./build --target menuconfig
 cmake -B build -G Ninja -DCONFIG_NAME=yourconfig
 ```
 
-## 🐞Debug
+## 🐞 Debug
 
 1. openocd >= 0.12.0
 2. [cortex-debug](https://github.com/Marus/cortex-debug) / [codelldb](https://github.com/vadimcn/codelldb) (vscode-plugin)
@@ -68,24 +64,12 @@ cmake -B build -G Ninja -DCONFIG_NAME=yourconfig
 4. FreeMASTER/FreeMASTER Lite >= 3.1.3 (后者支持Linux，需装前置Java JRE)
 5. systemview
 
-## ⚠️Notice
+## ⚠️ Notice
 
 1. 在main函数执行之前调用HAL库函数是危险的！请避免使调用HAL库的构造函数的类对象成为全局变量（可以创建全局的指针，或使用./Src/Utils/Lazy中的工具，并在初始化阶段构造）；
 1. 首次构建时，本项目会自动从github拉取第三方库，请确保网络可用。
 
-## 🧩Framework
+## 🧩 Framework
 
 ![frame](.docs/frame.png)
 
-# 🙌Contributing
-
-Contributions are always welcome!
-
-See [CONTRIBUTING](./.docs/CONTRIBUTING.md) for ways to get started.
-
-Please adhere to this project's [CODE_OF_CONDUCT](./.docs/CODE_OF_CONDUCT.md).
-
-> [!IMPORTANT]
-> PinyCore is still in early development, and is not yet complete. It should be stable enough and we have
-> been daily driving it for quite a while, but expect some bugs and possibly breaking changes to the
-> config file.
