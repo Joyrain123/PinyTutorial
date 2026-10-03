@@ -7,10 +7,6 @@ if(EXTENSION_MOTOR)
   list(APPEND SOURCES ${MOTOR_SOURCES})
 endif()
 
-if(EXTENSION_DT7)
-  list(APPEND SOURCES "RemoteControl/DT7.cpp")
-endif()
-
 # Add the library
 add_library(Extensions STATIC ${SOURCES})
 

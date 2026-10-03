@@ -4,7 +4,6 @@
 #include "CommManager.hpp"
 #endif
 
-#include "Cmd.hpp"
 #include "Bsp.hpp"
 #include "StmLog.hpp"
 #include "App.hpp"
@@ -24,8 +23,6 @@
 
 //---------------------------------------------------------------------------------------------------
 
-static std::unique_ptr<Cmd> cmd;
-
 //---------------------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------------------------------
@@ -42,8 +39,6 @@ void AppManager::initApp()
     BUZZER::buzz.init(&BEEP_TIMER, BEEP_TIM_CHANNEL, BEEP_APB_FREQ);
     BUZZER::buzz->playNote(BUZZER::PinyCore);
 #endif
-
-    cmd = std::make_unique<Cmd>();
 
 #if APP_USE_DAEMONS
     Daemons::instance().init();
