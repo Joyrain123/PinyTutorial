@@ -4,7 +4,7 @@
 #include "Soc.hpp"
 #include HAL_INCLUDE
 #if defined(TARGET_STM32F103C8TX) && TARGET_STM32F103C8TX
-#include "HAL_Driver_F1/Inc/stm32f1xx_hal_uart.h"
+#include "HAL_Driver/Inc/stm32f1xx_hal_uart.h"
 #endif
 #include <functional>
 
