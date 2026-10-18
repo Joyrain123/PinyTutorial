@@ -1,0 +1,86 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "AAA configure",
+      "type": "shell",
+      "command": "cmake -B build -G Ninja",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "detail": "构建",
+      "problemMatcher": []
+    },
+    {
+      "label": "AAA build",
+      "type": "shell",
+      "command": "ninja -C build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "detail": "编译",
+      "problemMatcher": []
+    },
+    {
+      "label": "AAA menuconfig",
+      "type": "shell",
+      "command": "menuconfig ./Kconfig && python ./tools/script/Kconfig2h.py",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "detail": "配置",
+      "problemMatcher": []
+    },
+    {
+      "label": "configure + build",
+      "dependsOn":["AAA configure", "AAA build"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "flash: jlink",
+      "type": "shell",
+      "command": "python tools/script/devtool.py flash jlink",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "detail": "烧录 (J-Link / SEGGER) 并复位运行",
+      "presentation": {
+        "group": "flash",
+        "reveal": "always",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flash: stlink",
+      "type": "shell",
+      "command": "python tools/script/devtool.py flash stlink",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "detail": "烧录 (ST-Link / OpenOCD) 并复位运行",
+      "presentation": {
+        "group": "flash",
+        "reveal": "always",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flash: daplink",
+      "type": "shell",
+      "command": "python tools/script/devtool.py flash daplink",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "detail": "烧录 (DAP-Link / OpenOCD) 并复位运行",
+      "presentation": {
+        "group": "flash",
+        "reveal": "always",
+        "clear": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

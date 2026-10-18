@@ -1,0 +1,49 @@
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdint.h>
+
+void usbParse(uint8_t *_data, uint16_t _len);
+
+#ifdef __cplusplus
+}
+
+#include "Singleton.hpp"
+#include <functional>
+#include <vector>
+#include "Task.hpp"
+#include "semphr.h"
+
+class Usb : public Singleton<Usb>, public Task<Usb, 256> {
+public:
+    void parse(uint8_t *_data, uint16_t _len);
+    int8_t send(const uint8_t *_data, uint16_t _len);
+    int8_t registerCallback(std::function<void(uint8_t *, uint16_t)> _cb);
+
+
+private:
+    friend class Singleton<Usb>;
+    friend class Task<Usb, 256>;
+
+    static constexpr uint8_t TX_MAX_SIZE = 64;
+    static constexpr uint8_t TX_TIMEOUT_MS = 10;
+
+    struct RxStats_s {
+        uint32_t cnt = 0;
+        uint8_t *buf = nullptr;
+        uint32_t len = 0;
+        bool dataPending = false;
+        SemaphoreHandle_t semphr;
+    };
+
+    Usb();
+    void task();
+
+    std::vector<std::function<void(uint8_t *, uint16_t)> > cbList_;
+    RxStats_s rx_;
+};
+
+#endif

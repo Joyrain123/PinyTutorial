@@ -1,0 +1,53 @@
+cmake_minimum_required(VERSION 3.24)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_PROJECT_NAME PinyCore)
+
+include("tools/Kconfig/Kconfig.cmake")
+include("tools/cmake/GccArmNoneEabi.cmake")
+include("tools/cmake/FindInclude.cmake")
+include("tools/cmake/ShowMessage.cmake")
+include("Src/Config/sdkconfig.cmake" OPTIONAL)
+include("tools/cmake/Version.cmake")
+include("tools/cmake/ccache.cmake")
+
+project(${CMAKE_PROJECT_NAME} VERSION ${PROJECT_VERSION})
+
+enable_language(C CXX ASM)
+
+add_compile_options($<$<C_COMPILER_ID:GNU>:-fdiagnostics-color=always>)
+add_compile_options($<$<CXX_COMPILER_ID:GNU>:-fdiagnostics-color=always>)
+add_compile_options(-Wno-unused-function)
+add_compile_options(-Wno-pedantic)
+
+add_executable(${CMAKE_PROJECT_NAME})
+
+add_subdirectory(Src/Common/Soc)
+include("tools/cmake/FindLib/FindLib.cmake")
+add_subdirectory(Lib/Eigen3)
+add_subdirectory(Src/App)
+add_subdirectory(Src/Common/Extensions)
+add_subdirectory(Src/Common/Bsp)
+add_subdirectory(Src/Common/Kernel)
+add_subdirectory(Src/System)
+add_subdirectory(Src/Utils)
+
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE Src/PinyCore.cpp)
+
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC Src)
+
+target_link_directories(${CMAKE_PROJECT_NAME} PUBLIC)
+
+target_link_libraries(
+  ${CMAKE_PROJECT_NAME} Extensions Bsp utils freertos_kernel
+  etl::etl
+  magic_enum
+)
+
+if(NOT RTOS_DEBUG)
+  target_compile_options(freertos_kernel PRIVATE -O3 -g0)
+  target_compile_options(freertos_kernel_port PRIVATE -O3 -g0)
+endif()
+
+showmessage()
