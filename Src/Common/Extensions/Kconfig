@@ -1,0 +1,10 @@
+menu "extension config"
+    config EXTENSION_RC
+    bool "remote control(DT7)"
+    default n
+    
+    config EXTENSION_MOTOR
+    bool "motor driver"
+    default n
+
+endmenu

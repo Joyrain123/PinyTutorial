@@ -1,0 +1,14 @@
+menu "utils config"
+    config USE_HARDFAULT 
+        bool "segger hardfault handle"
+        default y
+    config USE_STM_LOG
+        bool "stm log"
+        default y
+        
+    source "Src/Utils/Log/Kconfig"
+
+    config USE_SINGLETON
+        bool "singleton class base"
+        default y
+endmenu

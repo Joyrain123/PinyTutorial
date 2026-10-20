@@ -1,0 +1,135 @@
+INCLUDE(../../Config/sdkconfig.cmake option)
+
+add_library(Soc INTERFACE)
+
+if(DEFINED TARGET_STM32F407IGHX)
+    set(soc_target "stm32f407ighx")
+    set(cortex "cortex-m4" )
+    set(fpu "fpv4-sp-d16" )
+    set(float-abi "hard" )
+elseif(DEFINED TARGET_STM32F103C8TX)
+    set(soc_target "stm32f103c8tx")
+    set(cortex "cortex-m3" )
+    set(fpu "" )
+    set(float-abi "" )
+else()
+    message(WARNING "Using defaust Soc board: stm32f407ighx" )
+    set(soc_target "stm32f407ighx")
+    set(cortex "cortex-m4" )
+    set(fpu "fpv4-sp-d16" )
+    set(float-abi "hard" )
+endif()
+
+message(STATUS "soc board: ${soc_target}")
+
+set(soc_folder "${CMAKE_CURRENT_SOURCE_DIR}/${soc_target}" PARENT_SCOPE)
+set(target_folder "${CMAKE_CURRENT_SOURCE_DIR}/${soc_target}")
+
+set(TARGET_FLAGS "-mcpu=${cortex}")
+if(NOT "${fpu}" STREQUAL "")
+  set(TARGET_FLAGS "${TARGET_FLAGS} -mfpu=${fpu}")
+endif()
+if(NOT "${float-abi}" STREQUAL "")
+  set(TARGET_FLAGS "${TARGET_FLAGS} -mfloat-abi=${float-abi}")
+endif()
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${TARGET_FLAGS}" PARENT_SCOPE)
+set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} ${TARGET_FLAGS}" PARENT_SCOPE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TARGET_FLAGS}" PARENT_SCOPE)
+set(CMAKE_EXE_LINKER_FLAGS "-T ${target_folder}/link.ld" PARENT_SCOPE)
+
+target_include_directories(Soc INTERFACE ${target_folder})
+
+target_link_libraries(Soc INTERFACE stm32cubemx)
+
+include(FetchContent)
+set(FETCHCONTENT_QUIET OFF)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+set(FETCHCONTENT_BASE_DIR ${CMAKE_SOURCE_DIR}/.deps)
+
+if(DEFINED TARGET_STM32F407IGHX)
+  if(NOT EXISTS "${target_folder}/CMSIS_Device")
+    FetchContent_Declare(
+      cmsis_device_f4
+      GIT_REPOSITORY https://github.com/STMicroelectronics/cmsis-device-f4.git
+      GIT_TAG v2.6.11
+      GIT_SHALLOW TRUE
+      GIT_PROGRESS TRUE
+      SOURCE_DIR "${target_folder}/CMSIS_Device")
+    FetchContent_MakeAvailable(cmsis_device_f4)
+  endif()
+
+  if(NOT EXISTS "${target_folder}/HAL_Driver")
+    FetchContent_Declare(
+      hal_f4
+      GIT_REPOSITORY https://github.com/STMicroelectronics/stm32f4xx-hal-driver.git
+      GIT_TAG v1.8.5
+      GIT_SHALLOW TRUE
+      GIT_PROGRESS TRUE
+      SOURCE_DIR "${target_folder}/HAL_Driver")
+    FetchContent_MakeAvailable(hal_f4)
+  endif()
+
+elseif(DEFINED TARGET_STM32F103C8TX)
+  if(NOT EXISTS "${target_folder}/CMSIS_Device")
+    FetchContent_Declare(
+      cmsis_device_f1
+      GIT_REPOSITORY https://github.com/STMicroelectronics/cmsis-device-f1.git
+      GIT_TAG v4.3.5
+      GIT_SHALLOW TRUE
+      GIT_PROGRESS TRUE
+      SOURCE_DIR "${target_folder}/CMSIS_Device")
+    FetchContent_MakeAvailable(cmsis_device_f1)
+  endif()
+
+  if(NOT EXISTS "${target_folder}/HAL_Driver")
+    FetchContent_Declare(
+      hal_f1
+      GIT_REPOSITORY https://github.com/STMicroelectronics/stm32f1xx-hal-driver.git
+      GIT_TAG v1.1.10
+      GIT_SHALLOW TRUE
+      GIT_PROGRESS TRUE
+      SOURCE_DIR "${target_folder}/HAL_Driver")
+    FetchContent_MakeAvailable(hal_f1)
+  endif()
+endif()
+
+if(NOT EXISTS "${target_folder}/hal/Drivers/CMSIS/Device" OR NOT EXISTS "${target_folder}/hal/Drivers/CMSIS/Include")
+  message(WARNING "No HAL drivers from ${target_folder}/hal/Drivers, generating...")
+  execute_process(
+    COMMAND ${Python_EXECUTABLE} ${target_folder}/genSoc.py
+    RESULT_VARIABLE soc_result
+    OUTPUT_VARIABLE soc_output
+    ERROR_VARIABLE soc_error
+    ECHO_ERROR_VARIABLE
+    WORKING_DIRECTORY ${target_folder})
+
+  if(NOT soc_result EQUAL 0)
+    message(ERROR "genSoc.sh run failed: ${soc_error}")
+  else()
+    message(STATUS "genSoc.sh run success: ${soc_output}")
+  endif()
+endif()
+
+message("------------------ debug config ---------------------")
+
+function(generate_launch_json)
+  if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+      execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${target_folder}/debug/launch_linux.json ${CMAKE_SOURCE_DIR}/.vscode/launch.json)
+  elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+      execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${target_folder}/debug/launch_win.json ${CMAKE_SOURCE_DIR}/.vscode/launch.json)
+  endif()
+  message(STATUS "generating ${CMAKE_HOST_SYSTEM_NAME} ${soc_target} debug launch.json")
+endfunction()
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/.vscode/launch.json")
+  file(READ "${CMAKE_SOURCE_DIR}/.vscode/launch.json" LAUNCH_JSON_CONTENT)
+  # update launch.json only when change soc target 
+  if(LAUNCH_JSON_CONTENT MATCHES ".*${soc_target}.*")
+      message(STATUS "Found ${soc_target} in launch.json")
+      return()
+    else()
+      generate_launch_json()
+  endif()
+else()
+  generate_launch_json()
+endif()
