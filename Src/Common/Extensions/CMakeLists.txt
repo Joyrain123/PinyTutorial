@@ -1,5 +1,9 @@
 # Add the sources
-set(SOURCES)
+set(SOURCES Servo/ServoPwm.cpp)
+
+if(EXTENSION_ET08A)
+  list(APPEND SOURCES RemoteControl/ET08A/ET08A.cpp)
+endif()
 
 # Add the library
 add_library(Extensions STATIC ${SOURCES})

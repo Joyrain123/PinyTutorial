@@ -1,3 +1,11 @@
+/*
+ * @Author: userName userEmail
+ * @Date: 2026-10-28 15:35:27
+ * @LastEditors: userName userEmail
+ * @LastEditTime: 2026-10-28 17:49:49
+ * @FilePath: \leaner\ec_2027_submissions\Src\App\AppManager.cpp
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE   
+ */
 #include "AppManager.hpp"
 #include "sdkconfig.h"
 #if APP_USE_COMM
@@ -44,7 +52,6 @@ void AppManager::initApp()
     Daemons::instance().init();
     schedule([]() { Daemons::instance().update(); });
 #endif
-
     App::instance().init();
     schedule([]() { App::instance().task(); });
     this->createApp();

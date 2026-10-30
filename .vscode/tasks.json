@@ -33,7 +33,7 @@
     },
     {
       "label": "configure + build",
-      "dependsOn":["AAA configure", "AAA build"],
+      "dependsOn": ["AAA configure", "AAA build"],
       "dependsOrder": "sequence",
       "problemMatcher": []
     },
@@ -70,6 +70,8 @@
     {
       "label": "flash: daplink",
       "type": "shell",
+      "dependsOn": "configure + build",
+      "dependsOrder": "sequence",
       "command": "python tools/script/devtool.py flash daplink",
       "options": {
         "cwd": "${workspaceFolder}"

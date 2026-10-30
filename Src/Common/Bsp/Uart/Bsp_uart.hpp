@@ -29,6 +29,19 @@ public:
     void unregisterTxCallback();
 
     /**
+    * @brief uart 接收被错误处理流程重启后的通知回调
+    *
+    * HAL 在 ORE/FE/PE 等错误发生后会中止本次 DMA 接收，需要用
+    * HAL_UARTEx_ReceiveToIdle_DMA 从缓冲区起始地址重新开始。
+    * 上层如果维护了软件环形指针，必须在这里同步归零，否则下一次回调会把
+    * 缓冲区里的旧字节当成新数据再搬一遍（表现为“几十字节才拼出一帧”）。
+    * 注意：该回调在中断上下文中执行，里面不要做耗时操作。
+    */
+    using rxRestartCallback = std::function<void(UART_HandleTypeDef *)>;
+    void registerRxRestartCallback(rxRestartCallback _pCallback);
+    void unregisterRxRestartCallback();
+
+    /**
     * @brief uart multi_DMA_rx_buf init
     *
     * @param DataLength 请开辟两倍的缓冲区

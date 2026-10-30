@@ -2,6 +2,11 @@ menu "extension config"
     config EXTENSION_RC
     bool "remote control(DT7)"
     default n
+
+    config EXTENSION_ET08A
+    bool "ET08A SBUS receiver"
+    depends on EXTENSION_RC && TARGET_STM32F407IGHX && BSP_USE_UART
+    default n
     
     config EXTENSION_MOTOR
     bool "motor driver"
