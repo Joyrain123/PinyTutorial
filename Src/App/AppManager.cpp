@@ -10,6 +10,10 @@
 #include "App.hpp"
 #include <memory>
 
+#if BSP_USE_CAN
+
+#endif
+
 #if EXTENSION_BUZZER
 #include "Buzzer.hpp"
 #endif
@@ -48,6 +52,10 @@ void AppManager::initApp()
 #if APP_USE_DAEMONS
     Daemons::instance().init();
     schedule([]() { Daemons::instance().update(); });
+#endif
+
+#if BSP_USE_CAN
+
 #endif
 
     App::instance().init();

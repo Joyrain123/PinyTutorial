@@ -20,9 +20,13 @@ HAL_StatusTypeDef Can::init()
 }
 
 
-HAL_StatusTypeDef Can::registerCallback(canHandle *_hcan, uint32_t _stdid, callback _pCallback)
+HAL_StatusTypeDef Can::registerCallback(canHandle *_hcan, uint32_t _stdid, callback _pCallback,
+                                       uint8_t _expectedLength)
 {
-    struct Handler_s temp = { .stdid = _stdid, .func = _pCallback };
+    if (_expectedLength > 8 || !_pCallback) {
+        return HAL_ERROR;
+    }
+    struct Handler_s temp = { .stdid = _stdid, .func = _pCallback, .expectedLength = _expectedLength };
     if (_hcan == &HCAN1) {
         if (can1cnt < MAX_RECV_DEVICE) {
             cbTable1[can1cnt] = temp;
@@ -201,25 +205,37 @@ inline void Can::callbackFromISR(canHandle *_hcan, uint32_t _rxFifo)
     if (HAL_FDCAN_GetRxMessage(_hcan, _rxFifo, &rxHeader, rxData) != HAL_OK) {
         return;
     }
+    if (rxHeader.IdType != FDCAN_STANDARD_ID || rxHeader.RxFrameType != FDCAN_DATA_FRAME) {
+        return;
+    }
 
     if (_hcan == &HCAN1) {
         for (uint8_t i = 0; i < can1cnt; i++) {
             if (cbTable1[i].stdid == rxHeader.Identifier) {
-                cbTable1[i].func(rxData);
+                const auto &handler = cbTable1[i];
+                if (handler.func && (handler.expectedLength == 0 || rxHeader.DataLength == dlc[handler.expectedLength].bytes)) {
+                    handler.func(rxData);
+                }
                 break;
             }
         }
     } else if (_hcan == &HCAN2) {
         for (uint8_t i = 0; i < can2cnt; i++) {
             if (cbTable2[i].stdid == rxHeader.Identifier) {
-                cbTable2[i].func(rxData);
+                const auto &handler = cbTable2[i];
+                if (handler.func && (handler.expectedLength == 0 || rxHeader.DataLength == dlc[handler.expectedLength].bytes)) {
+                    handler.func(rxData);
+                }
                 break;
             }
         }
     } else if (_hcan == &HCAN3) {
         for (uint8_t i = 0; i < can3cnt; i++) {
             if (cbTable3[i].stdid == rxHeader.Identifier) {
-                cbTable3[i].func(rxData);
+                const auto &handler = cbTable3[i];
+                if (handler.func && (handler.expectedLength == 0 || rxHeader.DataLength == dlc[handler.expectedLength].bytes)) {
+                    handler.func(rxData);
+                }
                 break;
             }
         }
@@ -258,6 +274,7 @@ HAL_StatusTypeDef canFilterInit(CAN_HandleTypeDef *_can, uint32_t _fifo)
     canFilter.FilterIdLow = 0x0000;
     canFilter.FilterMaskIdHigh = 0x0000;
     canFilter.FilterMaskIdLow = 0x0000;
+    canFilter.SlaveStartFilterBank = 14;
     if (_can == &HCAN1) {
         canFilter.FilterBank = 0;
     } else if (_can == &HCAN2) {
@@ -301,17 +318,26 @@ void Can::callbackFromISR(canHandle *_hcan, uint32_t _rxFifo)
     if (HAL_CAN_GetRxMessage(_hcan, _rxFifo, &rxHeader, rxData) != HAL_OK) {
         return;
     }
+    if (rxHeader.IDE != CAN_ID_STD || rxHeader.RTR != CAN_RTR_DATA) {
+        return;
+    }
     if (_hcan == &HCAN1) {
         for (uint8_t i = 0; i < can1cnt; i++) {
             if (cbTable1[i].stdid == rxHeader.StdId) {
-                cbTable1[i].func(rxData);
+                const auto &handler = cbTable1[i];
+                if (handler.func && (handler.expectedLength == 0 || rxHeader.DLC == handler.expectedLength)) {
+                    handler.func(rxData);
+                }
                 break;
             }
         }
     } else if (_hcan == &HCAN2) {
         for (uint8_t i = 0; i < can2cnt; i++) {
             if (cbTable2[i].stdid == rxHeader.StdId) {
-                cbTable2[i].func(rxData);
+                const auto &handler = cbTable2[i];
+                if (handler.func && (handler.expectedLength == 0 || rxHeader.DLC == handler.expectedLength)) {
+                    handler.func(rxData);
+                }
                 break;
             }
         }

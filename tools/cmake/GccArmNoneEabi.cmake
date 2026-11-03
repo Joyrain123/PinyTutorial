@@ -26,9 +26,9 @@ if(NOT ARM_NONE_EABI_GCC)
 endif()
 
 get_filename_component(ARM_TOOLCHAIN_BIN_DIR "${ARM_NONE_EABI_GCC}" DIRECTORY)
-set(ARM_NONE_EABI_GXX     "${ARM_TOOLCHAIN_BIN_DIR}/arm-none-eabi-g++")
-set(ARM_NONE_EABI_OBJCOPY "${ARM_TOOLCHAIN_BIN_DIR}/arm-none-eabi-objcopy")
-set(ARM_NONE_EABI_SIZE    "${ARM_TOOLCHAIN_BIN_DIR}/arm-none-eabi-size")
+find_program(ARM_NONE_EABI_GXX     NAMES arm-none-eabi-g++     HINTS "${ARM_TOOLCHAIN_BIN_DIR}" NO_DEFAULT_PATH)
+find_program(ARM_NONE_EABI_OBJCOPY NAMES arm-none-eabi-objcopy HINTS "${ARM_TOOLCHAIN_BIN_DIR}" NO_DEFAULT_PATH)
+find_program(ARM_NONE_EABI_SIZE    NAMES arm-none-eabi-size    HINTS "${ARM_TOOLCHAIN_BIN_DIR}" NO_DEFAULT_PATH)
 
 set(CMAKE_C_COMPILER   "${ARM_NONE_EABI_GCC}")
 set(CMAKE_ASM_COMPILER "${ARM_NONE_EABI_GCC}")
