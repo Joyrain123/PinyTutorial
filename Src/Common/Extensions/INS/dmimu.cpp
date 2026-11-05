@@ -29,7 +29,7 @@ void Ins::receiveFromISR(const uint8_t *_frame)
     if (_frame[0] != 3) {
         return;
     }
-    // 中断只保存最新欧拉角帧，解析和发送命令放到任务中。
+
     std::memcpy(rxFrame_, _frame, 8);
     rxTimeMs_ = HAL_GetTick();
     rxPending_ = true;
