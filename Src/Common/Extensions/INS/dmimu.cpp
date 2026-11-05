@@ -68,10 +68,13 @@ void Ins::update()
     taskEXIT_CRITICAL();
 
     const uint32_t now = HAL_GetTick();
-    // 持续收到的欧拉角 5 秒不变时重启，两次尝试至少间隔 5 秒。
+
+    // imu卡死检测
     if (isOnline() && static_cast<uint32_t>(now - lastChangeMs_) >= EULER_STUCK_MS
             && static_cast<uint32_t>(now - lastRestartMs_) >= RESTART_INTERVAL_MS) {
+
         lastRestartMs_ = now;
+
         if (transmit(0, true)) {
             taskENTER_CRITICAL();
             hasData_ = false;
@@ -80,11 +83,12 @@ void Ins::update()
         }
         return;
     }
-    // 只补查缺失的欧拉角，不查询加速度和陀螺仪。
+
+    // 补查
     if ((!hasData_ || static_cast<uint32_t>(now - lastRxMs_) >= EULER_POLL_MS)
             && static_cast<uint32_t>(now - lastRequestMs_) >= EULER_POLL_MS) {
         lastRequestMs_ = now;
-        transmit(3, false);
+        transmit(3, false);//get EULER_DATA
     }
 }
 

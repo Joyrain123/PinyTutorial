@@ -37,8 +37,8 @@ private:
 
     static constexpr uint32_t OFFLINE_TIMEOUT_MS = 100;
     static constexpr uint32_t EULER_POLL_MS = 5;
-    static constexpr uint32_t EULER_STUCK_MS = 5000; // 欧拉角不变多久后重启，可按测试需要修改。
-    static constexpr uint32_t RESTART_INTERVAL_MS = 5000;
+    static constexpr uint32_t EULER_STUCK_MS = 5000; // 欧拉角重启判定时长
+    static constexpr uint32_t RESTART_INTERVAL_MS = 5000;//重启间隔时长
 
     canHandle *hcan_ = nullptr;
     Data_s data_{};
