@@ -1,0 +1,76 @@
+#pragma once
+#include "MsgBase.hpp"
+#include "FreeRTOS.h"
+#include "queue.h"
+
+
+namespace CHASSIS {
+enum class FSMState_e : uint8_t;
+}
+
+namespace GIMBAL {
+enum class FSMState_e : uint8_t;
+}
+
+namespace ARM {
+enum class FSMState_e : uint8_t;
+}
+
+namespace ARMORBOOSTER {
+enum class FSMState_e : uint8_t;
+}
+
+struct MsgBus_s {
+    QueueHandle_t chassisQueue;
+    QueueHandle_t gimbalQueue;
+    QueueHandle_t armQueue;
+    QueueHandle_t refereeQueue;
+};
+
+//  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ ctrl msg ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+struct ChassisMsg_s : public Msg {
+    CHASSIS::FSMState_e state;
+    float vx, vy, yaw;
+};
+
+struct GimbalMsg_s : public Msg {
+    GIMBAL::FSMState_e state;
+    float roll, pitch, yaw;
+};
+
+struct ArmMsg_s : public Msg {
+    float j1, j2, j3, j4, j5, j6;
+};
+
+struct RefereeMsg_s : public Msg {
+    uint8_t robotId;
+    uint16_t remainHeat, gameTime, currentHP, shooterHeatLimit, chassisPowerLimit, chassisPowerBuffer;
+    float bulletSpeed, rxFreq;
+    bool isPlay;
+};
+
+//  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ other msg ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+struct GimbalEularMsg_s : public Msg {
+    float roll, pitch, yaw;
+};
+
+struct DeltaYawMsg_s : public Msg {
+    float deltaYaw;
+};
+
+//  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ temp cache ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+struct ChassisUIMsg_s {
+    CHASSIS::FSMState_e state;
+};
+
+struct GimbalUIMsg_s {
+    GIMBAL::FSMState_e state;
+};
+
+struct ArmUIMsg_s {
+    ARM::FSMState_e state;
+};
+
+struct ArmorBoosterUIMsg_s {
+    ARMORBOOSTER::FSMState_e state;
+};

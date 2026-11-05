@@ -1,0 +1,76 @@
+#pragma once
+
+#include "sdkconfig.h"
+#include "Soc.hpp"
+#include <functional>
+#include <array>
+#include "Singleton.hpp"
+#include HAL_INCLUDE
+#if defined(TARGET_STM32F103C8TX) && TARGET_STM32F103C8TX
+#include "HAL_Driver_F1/Inc/stm32f1xx_hal_can.h"
+#endif
+
+class Can : public Singleton<Can> {
+private:
+    Can() = default;
+    friend class Singleton<Can>;
+
+public:
+    using callback = std::function<void(const uint8_t *)>;
+    /**
+     * @brief can registerCallback
+     */
+    // expectedLength=0 保持原行为；设为 8 可只接收完整的 IMU 帧。
+    HAL_StatusTypeDef registerCallback(canHandle *_hcan, uint32_t _stdid, callback _pCallback,
+                                       uint8_t _expectedLength = 0);
+
+    /**
+     * @brief can unregisterCallback
+     */
+    void unregisterCallback(canHandle *_hcan, uint32_t _stdid);
+
+    /**
+    * @brief can初始化并配置滤波器，不过滤任何ID
+    */
+    HAL_StatusTypeDef init();
+
+    /**
+    * @brief can发送普通数据帧 */
+    HAL_StatusTypeDef transmitData(canHandle *_hcan, uint16_t _stdid, uint8_t *_txData, uint32_t _len);
+
+    /**
+    * @brief can发送可变波特率数据帧
+    */
+    HAL_StatusTypeDef transmitBrsData(canHandle *_hcan, uint16_t _stdid, uint8_t *_txData, uint32_t _len);
+
+    /**
+    * @brief can rx callbackFromISR
+    */
+    void callbackFromISR(canHandle *_hcan, uint32_t _rxFifo);
+
+    /**
+    * @brief can check bus
+    */
+    void checkBus(canHandle *_hfdcan);
+
+private:
+    struct Handler_s {
+        uint32_t stdid;
+        callback func;
+        uint8_t expectedLength = 0;
+    };
+
+    HAL_StatusTypeDef initSelf(canHandle *_hcan, uint32_t _fifo);
+
+    /* one can max recv device number */
+    static constexpr uint8_t MAX_RECV_DEVICE = 9;
+
+    uint8_t can1cnt = 0;
+    std::array<Handler_s, MAX_RECV_DEVICE> cbTable1;
+    uint8_t can2cnt = 0;
+    std::array<Handler_s, MAX_RECV_DEVICE> cbTable2;
+#if SOC_CAN_NUM == 3
+    uint8_t can3cnt = 0;
+    std::array<Handler_s, MAX_RECV_DEVICE> cbTable3;
+#endif
+};

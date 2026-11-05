@@ -1,0 +1,7 @@
+Diagnostics:
+  UnusedIncludes: Strict
+  Includes:
+    IgnoreHeader:
+      - ".*FreeRTOS\\.h"
+      - ".*Bsp.hpp"
+      - ".*main.h"

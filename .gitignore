@@ -1,0 +1,22 @@
+# build cache
+build/
+.deps/
+.cache/
+.config
+.config.old
+sdkconfig.h
+sdkconfig.cmake
+
+# Third-party
+ThirdParty/
+
+# IDE files
+.vscode/launch.json
+.vscode/settings.json
+*.code-workspace
+
+# Log files
+*/*.log
+
+# Python cache
+__pycache__/

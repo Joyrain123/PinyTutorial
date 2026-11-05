@@ -1,0 +1,33 @@
+add_library(Bsp STATIC)
+
+include(${CMAKE_SOURCE_DIR}/tools/cmake/FindInclude.cmake)
+find_include_dir(HEADERS ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(Bsp PUBLIC ${HEADERS})
+
+if(BSP_USE_CAN)
+  target_sources(Bsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Can/Bsp_can.cpp)
+endif()
+if(BSP_USE_UART)
+  target_sources(Bsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Uart/Bsp_uart.cpp)
+endif()
+if(BSP_USE_PWM)
+  target_sources(Bsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Pwm/Bsp_pwm.cpp)
+endif()
+if(BSP_USE_TIM)
+  target_sources(Bsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Tim/Bsp_tim.cpp)
+endif()
+if(BSP_USE_USB AND TARGET_STM32F407IGHX)
+  target_sources(Bsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Usb/Bsp_usb.cpp)
+endif()
+if(BSP_USE_DMA)
+  target_sources(Bsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Dma/Bsp_dma.cpp)
+endif()
+target_link_libraries(Bsp PUBLIC Soc kernel utils)
+
+add_subdirectory(${soc_folder}/hal/cmake/stm32cubemx ${CMAKE_CURRENT_BINARY_DIR}/stm32cubemx)
+
+target_compile_options(STM32_Drivers PRIVATE -Wno-unused-parameter)
+
+# usbd_desc.c:143:1: warning: missing initializer for field
+# 'GetBOSDescriptor' of 'USBD_DescriptorsTypeDef' [-Wmissing-field-initializers]
+target_compile_options(STM32_Drivers PRIVATE -Wno-missing-field-initializers)

@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.24)
+project(dmimuHostTests LANGUAGES CXX)
+include(CTest)
+
+add_executable(dmimu_test test_dmimu.cpp ../../Src/Common/Extensions/INS/dmimu.cpp)
+target_compile_features(dmimu_test PRIVATE cxx_std_17)
+target_compile_definitions(dmimu_test PRIVATE DM_IMU_HOST_TEST=1)
+target_include_directories(dmimu_test PRIVATE mocks ../../Src/Common/Extensions/INS)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(dmimu_test PRIVATE -Wall -Wextra -Werror)
+endif()
+
+foreach(scenario decode changing frozen rollover offline temperature tx_failure request_mode)
+  add_test(NAME dmimu_${scenario} COMMAND dmimu_test ${scenario})
+endforeach()

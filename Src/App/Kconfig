@@ -1,0 +1,23 @@
+menu "app config"
+    choice
+        prompt "CAN assessment stage"
+        default CAN_ASSESSMENT_BASIC
+
+        config CAN_ASSESSMENT_BASIC
+            bool "Basic"
+            select BSP_USE_CAN
+            select EXTENSION_MOTOR
+
+        config CAN_ASSESSMENT_ADVANCED
+            bool "Advanced"
+            select BSP_USE_CAN
+            select EXTENSION_MOTOR
+            select EXTENSION_IMU
+    endchoice
+
+    config CAN_BASIC_CURRENT_MA
+        int "Basic current (mA)"
+        depends on CAN_ASSESSMENT_BASIC
+        range -1000 1000
+        default 100
+endmenu

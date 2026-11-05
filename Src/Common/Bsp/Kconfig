@@ -1,0 +1,26 @@
+menu "Bsp config"
+    config BSP_USE_CAN
+        bool "can/fdcan"
+        default y
+
+    config BSP_USE_DMA
+        bool "dma"
+        default y
+
+    config BSP_USE_PWM
+        bool "pwm"
+        default y
+
+    config BSP_USE_UART
+        bool "uart/usart" 
+        default y
+
+    config BSP_USE_TIM
+        bool "tim"
+        default y
+
+    config BSP_USE_USB
+        bool "usb"
+        default y
+
+endmenu
