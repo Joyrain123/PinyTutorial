@@ -11,6 +11,12 @@ if(EXTENSION_DT7)
   list(APPEND SOURCES "RemoteControl/DT7.cpp")
 endif()
 
+if(EXTENSION_IMU)
+  file(GLOB_RECURSE IMU_SOURCES
+       "${CMAKE_CURRENT_SOURCE_DIR}/INS/dmimu.cpp")
+  list(APPEND SOURCES ${IMU_SOURCES})
+endif()
+
 # Add the library
 add_library(Extensions STATIC ${SOURCES})
 

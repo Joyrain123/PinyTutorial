@@ -7,6 +7,8 @@ namespace MOTOR {
 
 class DJIMotor {
 public:
+    //param
+    
     static constexpr float PI = std::numbers::pi_v<float>;
     static constexpr float ANGLE_MAX = 8191.0f;
     static constexpr float CURRENT_MAX = 3.0f;

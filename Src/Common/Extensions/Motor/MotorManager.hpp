@@ -6,7 +6,7 @@ namespace MOTOR {
 
 class Motor {
 public:
-    void ctrl();
+    void ctrl(float _current);
 
     void init();
 private:

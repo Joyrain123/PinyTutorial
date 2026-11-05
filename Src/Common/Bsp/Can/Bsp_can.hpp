@@ -20,7 +20,9 @@ public:
     /**
      * @brief can registerCallback
      */
-    HAL_StatusTypeDef registerCallback(canHandle *_hcan, uint32_t _stdid, callback _pCallback);
+    // expectedLength=0 保持原行为；设为 8 可只接收完整的 IMU 帧。
+    HAL_StatusTypeDef registerCallback(canHandle *_hcan, uint32_t _stdid, callback _pCallback,
+                                       uint8_t _expectedLength = 0);
 
     /**
      * @brief can unregisterCallback
@@ -55,6 +57,7 @@ private:
     struct Handler_s {
         uint32_t stdid;
         callback func;
+        uint8_t expectedLength = 0;
     };
 
     HAL_StatusTypeDef initSelf(canHandle *_hcan, uint32_t _fifo);

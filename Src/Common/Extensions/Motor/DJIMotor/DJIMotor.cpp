@@ -1,5 +1,6 @@
 #include "DJIMotor.hpp"
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 
 using namespace MOTOR;
@@ -23,14 +24,15 @@ void DJIMotor::init(canHandle *_hcan, uint8_t _id)
 
 bool DJIMotor::update()
 {
-    if (frameReady_) {
+    if (frameReady_) {return false;}
+
         frameReady_ = false;
         uint8_t raw[8];
-        for (uint8_t i = 0; i < 8; i++)
-            raw[i] = rxBuf_[regInfo_.rxReadId_][i];
+         const uint8_t idx = regInfo_.rxReadId_; 
+        for (uint8_t i = 0; i < 8; i++) raw[i] = rxBuf_[idx][i];
+        
         parseFeedback(raw);
         lastRxMs_ = HAL_GetTick();
-    }
     return true;
 }
 
@@ -78,6 +80,9 @@ bool DJIMotor::cmdCurrent(float _current)
 
 uint16_t DJIMotor::currentToCode(float _current)
 {
-    _current = std::clamp(_current, -CURRENT_MAX, CURRENT_MAX);
-    return static_cast<uint16_t>(_current);
+    constexpr float NUM_PER_AMP = CURRENT_CODE_MAX / CURRENT_MAX;
+    float code = std::clamp(_current, -CURRENT_MAX, CURRENT_MAX) * NUM_PER_AMP;
+    int32_t v = static_cast<int32_t>(std::lround(code));
+    v = v > 16384 ? 16384 : (v < -16384 ? -16384 : v);
+    return static_cast<uint16_t>(static_cast<int16_t>(v));   // 先转有符号，避免 UB
 }
